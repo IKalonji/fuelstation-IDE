@@ -138,7 +138,7 @@ export class FuelStationComponent implements OnInit, AfterViewInit {
               this.getWorkspace();
               this.executionOutput = `Result:${data.result} -- Detail:${data.detail} --Error:${data.error ? data.error : "None"}`
               this.executionLoading = false
-              this.showInfoPopup("Accounts", "Default emulator account has been created and added to flow.json use that or create another for deployments. Create an account on testnet network by clicking the create account button if you plan on deploying to testnet.")
+              this.showInfoPopup("Accounts", "Default deployer account has been created and added to the session use that or create another for deployments. Create an account on testnet beta-3 network by clicking the create account button if you plan on deploying to testnet.")
             }
           )
   }
