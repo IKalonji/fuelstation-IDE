@@ -8,34 +8,46 @@ export class WalletService {
 
   connected: boolean | undefined;
   wallet: string | undefined;
+  account: string | undefined;
 
   constructor() {
-    fcl.config({
-      "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn", // Endpoint set to Testnet
-      'accessNode.api': 'https://rest-testnet.onflow.org',
-      "app.detail.title": "FuelStation",
-      "app.detail.icon": "https://github.com/IKalonji/fuelstation-IDE/blob/main/src/assets/flow-logo.png",
-    })
+    this.checkConnection()
   }
 
   async connect(){
-    await fcl.authenticate().then(async ()=>{
-      this.connected = true; 
-      await fcl.currentUser.snapshot().then((data)=>{
-        console.log(data);
-        this.wallet = data.addr;
-        this.connected = data.loggedIn;
-      })
-    }).catch((error)=>{
-      alert(error);
-    })
+    if (window.fuel) {
+      try {
+        await window.fuel.connect();
+        const [account] = await window.fuel.accounts();
+        this.account = account;
+        this.wallet = account;
+        this.connected = true;
+        console.log(`Connected ${this.connected}, Account ${this.account}`)
+      } catch(err) {
+        console.log("error connecting: ", err);
+      }
+     }
+     else {
+      alert("Fuel Wallet is not installed, please download and install here: https://wallet.fuel.network/docs/install/")
+    }
   }
 
   async disconnect(){
-    fcl.unauthenticate();
-    this.connected = false;
-    this.wallet = "";
+    // fcl.unauthenticate();
+    // this.connected = false;
+    // this.wallet = "";
   }
 
+  async checkConnection() {
+    if (window.fuel) {
+      const isConnected = await window.fuel.isConnected();
+      if (isConnected) {
+        const [account] = await window.fuel.accounts();
+        this.account = account;
+        this.connected = true;
+        this.wallet = account;
+      }
+    }
+  }
 
 }

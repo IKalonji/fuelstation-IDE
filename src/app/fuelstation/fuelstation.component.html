@@ -2,13 +2,19 @@
     <p-toolbar>
         <div class="p-toolbar-group-start">
             <div>
-                <img src="../../assets/flow-logo.png" alt="logo" style="height: 30px; width: 30px;">
+                <img src="../../assets/fuel-logo.png" alt="logo" style="height: 30px; width: 30px;">
                 <label class="font-bold">FuelStation</label>
+            </div>
+        </div>
+        <div class="p-toolbar-group-center">
+            <div>
+                <label class="p-3">Network: Testnet Beta-3</label>
+                <label class="font-bold">{{wallet}}</label>
             </div>
         </div>
         <div class="p-toolbar-group-end">
             <p-button icon="pi pi-plus" label="Manage Workspaces" class="mr-2" pTooltip="New Workspace" (onClick)="workspace()"></p-button>
-            <p-button icon="pi pi-user-plus" styleClass="p-button-success" class="mr-2" pTooltip="Add account to flow.json" (onClick)="addAccount()"></p-button>
+            <!-- <p-button icon="pi pi-user-plus" styleClass="p-button-success" class="mr-2" pTooltip="Add account to flow.json" (onClick)="addAccount()"></p-button> -->
             <p-button icon="pi pi-sign-out" styleClass="p-button-warning" class="mr-2" pTooltip="Exit" (onClick)="logout()"></p-button>
         </div>
     </p-toolbar>

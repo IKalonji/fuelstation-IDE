@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit {
     this.walletService.connect().then(()=>{
       this.fuelstationService.isServiceReady().subscribe((data:any)=>{
         if(data.result == "OK"){
-          if(this.walletService.connected) this.router.navigate(["flowde"]);
+          if(this.walletService.connected) this.router.navigate(["fuelstation"]);
         }
       })
     })

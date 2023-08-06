@@ -63,6 +63,8 @@ export class FuelStationComponent implements OnInit, AfterViewInit {
   argumentInput: argObject[] = [];
   getArguments = false;
 
+  wallet:string|undefined;
+
   constructor(private walletService: WalletService, private fuelstationService: FuelStationService, private router: Router, private confirmationService: ConfirmationService, private toast: MessageService) {}
 
   ngOnInit(): void {
@@ -74,6 +76,7 @@ export class FuelStationComponent implements OnInit, AfterViewInit {
       this.fuelstationService.isUser(this.walletService.wallet).subscribe((user:any)=>{
         console.log("response from isuser", user);
         if(user.result == "OK"){
+          this.wallet = this.walletService.wallet;
           this.dialogMsg = "User is valid. Getting your workspaces"
           this.fuelstationService.getWorkspaces(this.walletService.wallet).subscribe((workspace:any)=>{
             console.log(workspace);
