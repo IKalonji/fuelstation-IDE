@@ -1,0 +1,130 @@
+<div style="display: flex; flex-direction: column; height: 100vh;">
+    <p-toolbar>
+        <div class="p-toolbar-group-start">
+            <div>
+                <img src="../../assets/flow-logo.png" alt="logo" style="height: 30px; width: 30px;">
+                <label class="font-bold">flowDE</label>
+            </div>
+        </div>
+        <div class="p-toolbar-group-end">
+            <p-button icon="pi pi-plus" label="Manage Workspaces" class="mr-2" pTooltip="New Workspace" (onClick)="workspace()"></p-button>
+            <p-button icon="pi pi-user-plus" styleClass="p-button-success" class="mr-2" pTooltip="Add account to flow.json" (onClick)="addAccount()"></p-button>
+            <p-button icon="pi pi-sign-out" styleClass="p-button-warning" class="mr-2" pTooltip="Exit" (onClick)="logout()"></p-button>
+        </div>
+    </p-toolbar>
+    <div style="flex: 1;" class="grid grid-nogutter max-h-full">
+        <div class="col-3">
+            <div class="text-left p-1 border-noround border-1 h-full font-bold">
+                <div class="text-center">
+                    <h2>Workspaces</h2>
+                </div>
+                <div *ngFor="let workspace of workspaces">
+                    <div class="text-center font-bold p-1"><label>{{workspace[0].type}}</label></div>
+                    <div class="text-center">
+                        <span class="p-buttonset">
+                            <p-button icon="pi pi-file" pTooltip="Add file" (onClick)="fileOptions('add')"></p-button>
+                            <p-button icon="pi pi-trash" styleClass="p-button-danger p-button-sml" pTooltip="Delete file" (onClick)="fileOptions('delete')"></p-button>
+                            <p-button icon="pi pi-cloud-upload" styleClass="p-button-secondary p-button-sml" pTooltip="Deploy contract" (onClick)="contractOptions('deploy')"></p-button>
+                            <p-button icon="pi pi-forward" styleClass="p-button-info p-button-sml" pTooltip="Run transaction" (onClick)="contractOptions('transaction')"></p-button>
+                            <p-button icon="pi pi-code" styleClass="p-button-help p-button-sml" pTooltip="Run script" (onClick)="contractOptions('script')"></p-button>
+                            <p-button icon="pi pi-save" styleClass="p-button-success" pTooltip="Save current file" (onClick)="saveFile()"></p-button>
+                        </span>
+                    </div>
+                    <div class="text-center p-1" *ngIf="fileManagement">
+                        <span class="p-input-icon-left p-1">
+                            <i class="pi pi-file"></i>
+                            <input type="text" pInputText [(ngModel)]="filename" placeholder="file.cdc" />
+                        </span>
+                        <div class="card flex justify-content-center p-1">
+                            <p-dropdown [options]="folders" [(ngModel)]="folder" optionLabel="name"></p-dropdown>
+                        </div>
+                        <div class="card flex justify-content-center p-1">
+                            <p-button *ngIf="currentManagementSelection == 'add'" label="Create" styleClass="p-button-raised p-button-textp-button-success" class="p-2" (onClick)="newFile(workspace[0].type)"></p-button>
+                            <p-button *ngIf="currentManagementSelection == 'delete'" label="Delete" styleClass="p-button-raised p-button-text p-button-danger" class="p-2" (onClick)="deleteFile(workspace[0].type)"></p-button>
+                        </div>
+                    </div>
+                    <div class="text-center p-1" *ngIf="contractFunctions">
+                        <span class="p-input-icon-left p-1">
+                            <i class="pi pi-user"></i>
+                            <input type="text" pInputText [(ngModel)]="account_name" placeholder="flow.json account name"/>
+                        </span>
+                        <div class="card flex justify-content-center p-1">
+                            <p-dropdown [options]="networks" [(ngModel)]="network" optionLabel="name" placeholder="Network"></p-dropdown>
+                        </div>
+                        <div class="card flex justify-content-center p-1">
+                            <p-button label="Execute" styleClass="p-button-raised p-button-textp-button-success" class="p-2" (onClick)="getDeployArguments()"></p-button>
+                        </div>
+                    </div>
+                    <div class="card flex justify-content-center p-3">
+                        <p-tree class="w-full md:w-30rem" [value]="workspace" selectionMode="single" [(selection)]="selectedFile"
+                        (onNodeExpand)="nodeExpand($event)" (onNodeSelect)="nodeSelect($event)"></p-tree>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="grid grid-nogutter h-full">
+                <div class="col-12">
+                    <div class="flex-grow-0 text-left border-noround h-full border-1">
+                        <div class="app-ace-editor" #editor style="width: 100%;height: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p-dialog header="Setting Up" [(visible)]="setupDialogVisible" [style]="{width: '50vw'}">
+            <div class="text-center">
+                <i class="pi pi-spin pi-cog" style="font-size: 4rem"></i>
+                <label>{{dialogMsg}}</label>
+            </div>
+        </p-dialog>
+        <p-dialog header="Manage Workspace" [(visible)]="createOrDeleteWorkspaceDialogVisible" [style]="{ width: '50vw' }">
+            <div class="flex py-2 justify-content-center">
+                <input type="text" class="p-2" pInputText [(ngModel)]="createOrDeleteWorkspaceDialogInput" placeholder="Workspace name" disabled="{{createOrDeleteWorkspaceDialogLoading}}"/>
+                <div>
+                    <p-button label="Create" styleClass="p-button-raised p-button-text" class="p-2" *ngIf="!createOrDeleteWorkspaceDialogLoading" (onClick)="createWorkspace()"></p-button>
+                    <p-button label="Delete" styleClass="p-button-raised p-button-text" class="p-2" *ngIf="!createOrDeleteWorkspaceDialogLoading" (onClick)="deleteWorkspace()"></p-button>    
+                </div>
+                <i class="pi pi-spin pi-cog" *ngIf="createOrDeleteWorkspaceDialogLoading"></i>
+            </div>
+        </p-dialog>
+        <p-dialog header="Create Account (ONLY EMULATOR/TESTNEST FOR THIS DEMO)" [(visible)]="createAccountDialogVisible" [style]="{ width: '50vw' }">
+            <div class="flex py-2 justify-content-center">
+                <input class="p-2" type="text" pInputText [(ngModel)]="account_name" placeholder="Name the Account" disabled="{{createAccountLoading}}"/>
+                <input class="p-2" type="text" pInputText [(ngModel)]="newAccountWorkspace" placeholder="Workspace to create in" disabled="{{createAccountLoading}}"/>
+                <p-dropdown class="p-2" appendTo="body" [options]="networks" [(ngModel)]="network" optionLabel="name"></p-dropdown>
+                <div>
+                    <p-button label="Create" styleClass="p-button-raised p-button-text p-button-info" class="p-2" *ngIf="!createAccountLoading" (onClick)="createAccount()"></p-button> 
+                </div>
+                <i class="pi pi-spin pi-cog" *ngIf="createAccountLoading"></i>
+            </div>
+        </p-dialog>
+        <p-dialog header="EXECUTION OUTPUT" [(visible)]="executionOutputDialog" [style]="{ width: '80vw' }" [closable]=false [dismissableMask]=false>
+            <div class="flex py-2 justify-content-center">
+                <i class="pi pi-spin pi-spinner" *ngIf="executionLoading" style="color: green" style="font-size: 3.5rem"></i>
+                <p>{{executionOutput}}</p>
+                <p-button label="CLOSE" styleClass="p-button-raised p-button-info" class="p-2" *ngIf="!executionLoading" (onClick)="closeExecutionOutput()"></p-button> 
+            </div>
+        </p-dialog>
+        <p-dialog header="Argument input" [(visible)]="getArguments" [style]="{ width: '50vw' }" [closable]=true [dismissableMask]=false>
+            <p>Click 'Add Argument' to add an execution argument and submit when done (each time clicked creates a field). Leave blank and submit if no arguments are required. Ensure arguments are in the correct order expected for execution.</p>
+            <div *ngFor="let argument of argumentInput" class="text-center">
+                <input class="p-2 mb-2" type="text" pInputText [(ngModel)]="argument.arg" placeholder="Arg"/>
+            </div>
+            <div class="flex">
+                <p-button label="Add Arg" styleClass="p-button-raised p-button-info" class="p-2" (onClick)="addArgument()"></p-button>
+                <p-button *ngIf="contractFunctionSelection == 'deploy'" label="Run Deploy" styleClass="p-button-raised p-button-success" class="p-2" (onClick)="deployContract()"></p-button>
+                <p-button *ngIf="contractFunctionSelection == 'transaction'" label="Run Transact" styleClass="p-button-raised p-button-info" class="p-2" (onClick)="runTransaction()"></p-button>
+                <p-button *ngIf="contractFunctionSelection == 'script'" label="Run Script" styleClass="p-button-raised p-button-help" class="p-2" (onClick)="runScript()"></p-button>
+            </div>
+        </p-dialog>
+        <p-toast></p-toast>
+        <p-confirmDialog [style]="{width: '50vw'}"></p-confirmDialog>
+    </div>
+</div>
+
+<style>
+    .app-ace-editor {
+        border: 2px solid #3fea5b;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+      }
+</style>
