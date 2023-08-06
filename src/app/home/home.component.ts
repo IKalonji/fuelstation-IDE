@@ -10,14 +10,14 @@ import { FuelStationService } from '../services/fuelstation.service';
 })
 export class HomeComponent implements OnInit {
 
-  constructor(private router: Router, private walletService: WalletService, private flowdeService: FuelStationService) { }
+  constructor(private router: Router, private walletService: WalletService, private fuelstationService: FuelStationService) { }
 
   ngOnInit(): void {
   }
 
   gotoIDE(){
     this.walletService.connect().then(()=>{
-      this.flowdeService.isServiceReady().subscribe((data:any)=>{
+      this.fuelstationService.isServiceReady().subscribe((data:any)=>{
         if(data.result == "OK"){
           if(this.walletService.connected) this.router.navigate(["flowde"]);
         }

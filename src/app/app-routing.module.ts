@@ -13,7 +13,7 @@ const routes: Routes = [
     component: HomeComponent
   },
   {
-    path: "flowde",
+    path: "fuelstation",
     component: FuelStationComponent
   }
 ];

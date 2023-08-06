@@ -15,7 +15,7 @@ import { ConfirmationService, MessageService, ConfirmEventType } from 'primeng/a
 export class FuelStationComponent implements OnInit, AfterViewInit {
   @ViewChild("editor") private editor: ElementRef<HTMLElement>;
 
-  instructions:string = "Welcome to Fuel Station\nTo begin create a new workspace, which is a project that will contain the folders needed to begin developing on flow.";
+  instructions:string = "Welcome to Fuel Station\nTo begin create a new workspace, which is a project that will contain the folders needed to begin developing on Fuel.";
   workspaces: TreeNode[][] = [];
   selectedFile: TreeNode = {};
 
@@ -179,7 +179,7 @@ export class FuelStationComponent implements OnInit, AfterViewInit {
         this.createAccountDialogVisible = false;
         this.newAccountWorkspace = "";
         this.executionLoading = false,
-        this.showInfoPopup("Faucet", "Follow the flow faucet link to fund your testnet account, ensure that you prefix with '0x' when using the faucet: https://testnet-faucet.onflow.org/")
+        this.showInfoPopup("Faucet", "Follow the Fuel faucet link to fund your testnet account, ensure that you prefix with '0x' when using the faucet: https://testnet-faucet.onflow.org/")
       }
     )
   }
