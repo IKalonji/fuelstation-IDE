@@ -32,12 +32,7 @@ export class FuelStationComponent implements OnInit, AfterViewInit {
   fileManagement = false;
   filename = ""
   folder = {name:""}
-  folders = [
-    { name: 'contracts'},
-    { name: 'scripts'},
-    { name: ' transactions'},
-    { name: 'tests'},
-];
+  folders:any = [];
   currentManagementSelection = "";
 
   contractFunctions = false;
@@ -204,6 +199,7 @@ export class FuelStationComponent implements OnInit, AfterViewInit {
     let valueFromText = this.aceEditor.getValue()
     console.log(valueFromText);
     this.showExecutionOutput()
+    console.log(this.selectedFile);
     this.fuelstationService.saveToFile(this.walletService.wallet, this.selectedFile.parent?.type, this.selectedFile.parent?.label?.toLowerCase(), this.selectedFile.label, valueFromText).subscribe(
       (data:any)=>{
         this.showToast(data.result == "OK")
@@ -335,89 +331,35 @@ export class FuelStationComponent implements OnInit, AfterViewInit {
   buildWorkspaceTreeObject(workspaceResponse: any[]){
     this.workspaces = []
     if(workspaceResponse.length == 0) return;
-    workspaceResponse.forEach(_workspace => {
-    const _contracts: any[] = _workspace.folders.contracts;
-    const _scripts: any[] = _workspace.folders.scripts;
-    const _transactions: any[] = _workspace.folders.transactions;
-    const _tests: any[] = _workspace.folders.tests; 
+    workspaceResponse.forEach((_workspace) => {
+      this.workspaces.push(this.builder(_workspace.workspace, _workspace.dir))
+    });
+  }
 
-    let contractsTreenode: TreeNode = {
-      type: _workspace.workspace,
-      label: "Contracts",
-      data: 'Contracts Folder',
-      icon: 'pi pi-fw pi-folder-open',
-      children: []
-      }
-    
-    let scriptsTreenode: TreeNode = {
-      type: _workspace.workspace,
-      label: "Scripts",
-      data: 'Scripts Folder',
-      icon: 'pi pi-fw pi-folder-open',
-      children: []
-      }
-    let transactionsTreenode: TreeNode = {
-      type: _workspace.workspace,
-      label: "Transactions",
-      data: 'Transactions Folder',
-      icon: 'pi pi-fw pi-folder-open',
-      children: []
-      }
-    let testsTreenode: TreeNode = {
-      type: _workspace.workspace,
-      label: "Tests",
-      data: 'Tests Folder',
-      icon: 'pi pi-fw pi-folder-open',
-      children: []
-      }
-    let flowJSONTreenode: TreeNode = {
-      type: _workspace.workspace,
-      label: "flow.json",
-      data: `${_workspace['flow.json']}`,
-      icon: 'pi pi-fw pi-file',
-      }
-    let readmeTreenode: TreeNode = {
-      type: _workspace.workspace,
-      label: "README.md",
-      data: `${_workspace['README.md']}`,
-      icon: 'pi pi-fw pi-file',
-      }
-    
-    _contracts.forEach((_element: any) => {
-      let newChild: TreeNode = {
-        label: _element.name,
-        data: `${_element.content}`,
+  builder(name:string, workspace: directory){
+    let workspaceTreeNodes: TreeNode[] = [];
+    workspace.files.forEach((file: file) => {
+      let fileNode: TreeNode = {
+        type: name,
+        label: file.filename,
+        data: file.content,
         icon: 'pi pi-fw pi-file',
       }
-      contractsTreenode.children?.push(newChild)
+      workspaceTreeNodes.push(fileNode)
     });
-    _scripts.forEach((_element: any) => {
-      let newChild: TreeNode = {
-        label: _element.name,
-        data: `${_element.content}`,
-        icon: 'pi pi-fw pi-file',
-      }
-      scriptsTreenode.children?.push(newChild)
+
+    workspace.subfolders.forEach((subfolder: subfolder) => {
+      this.folders.push({name:subfolder.name})
+      let subfolderTreeNode: TreeNode = {
+          type: name,
+          label: subfolder.name,
+          data: subfolder.name,
+          icon: 'pi pi-fw pi-folder-open',
+          children: this.builder(name, subfolder.root)
+        }
+      workspaceTreeNodes.push(subfolderTreeNode)
     });
-    _transactions.forEach((_element: any) => {
-      let newChild: TreeNode = {
-        label: _element.name,
-        data: `${_element.content}`,
-        icon: 'pi pi-fw pi-file',
-      }
-      transactionsTreenode.children?.push(newChild)
-    });
-    _tests.forEach((_element: any) => {
-      let newChild: TreeNode = {
-        label: _element.name,
-        data: `${_element.content}`,
-        icon: 'pi pi-fw pi-file',
-      }
-      testsTreenode.children?.push(newChild)
-    });
-    let _workspaceTreeNode:TreeNode[] = [contractsTreenode, scriptsTreenode, transactionsTreenode, testsTreenode, flowJSONTreenode, readmeTreenode]; 
-    this.workspaces.push(_workspaceTreeNode);
-    });
+    return workspaceTreeNodes
   }
 
   resetContractFunctionVariables(){
@@ -459,4 +401,18 @@ export class FuelStationComponent implements OnInit, AfterViewInit {
 
 export interface argObject {
   arg:string
+}
+
+export interface file {
+  filename: string,
+  content: string
+}
+
+export interface subfolder{
+  name:string,
+  root: directory
+}
+export interface directory {
+  files:file[],
+  subfolders: subfolder[],
 }

@@ -39,7 +39,7 @@
                     <div class="text-center p-1" *ngIf="fileManagement">
                         <span class="p-input-icon-left p-1">
                             <i class="pi pi-file"></i>
-                            <input type="text" pInputText [(ngModel)]="filename" placeholder="file.cdc" />
+                            <input type="text" pInputText [(ngModel)]="filename" placeholder="file.sw" />
                         </span>
                         <div class="card flex justify-content-center p-1">
                             <p-dropdown [options]="folders" [(ngModel)]="folder" optionLabel="name"></p-dropdown>
@@ -52,7 +52,7 @@
                     <div class="text-center p-1" *ngIf="contractFunctions">
                         <span class="p-input-icon-left p-1">
                             <i class="pi pi-user"></i>
-                            <input type="text" pInputText [(ngModel)]="account_name" placeholder="flow.json account name"/>
+                            <input type="text" pInputText [(ngModel)]="account_name" placeholder="alias account name"/>
                         </span>
                         <div class="card flex justify-content-center p-1">
                             <p-dropdown [options]="networks" [(ngModel)]="network" optionLabel="name" placeholder="Network"></p-dropdown>
